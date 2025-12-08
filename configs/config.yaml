@@ -1,0 +1,52 @@
+approach: segment_mil # max_mil attn_mil 
+multi_instance: True
+severity: 70
+resolution: 518
+segments: major
+artery_based: # set dynamically based on approach
+segment_based: # set dynamically based on approach
+early_stop: True
+batch_size: 10
+epochs: 2 #100
+device: cuda:0
+augmentation: base
+seed: 0
+optim:
+  type: AdamW
+  lr: 0.0001
+  weight_decay: 0.0005
+  grad_accumulation_steps: 6
+loss:
+  use_frequency_weights: False
+  cls_lambda: 0.4
+  artery_lambda: 0.4
+  segment_lambda: 0.2
+model:
+  encode_level: patch
+  backbone_type: vit
+  freeze: False
+  unfreeze: False
+  pretrained: True
+  full_model_weights: None
+  model_part_to_load: full
+  cnt_pos_embeddings: 256
+  attention_type: transformer
+  handle_multiframe: learned_embedding 
+  attention_heads: 4
+  transformer_layers: 2
+  projector_layers: 0
+  classifier_layers: 0
+  shared_classifier: False  
+  segments_to_ignore: []
+  hierarchical: True
+  embed_dim: 512
+multiframe:
+  frames_per_view: # set dynamically as left+right+1
+  left: 0
+  right: 0
+  spacing_left: 0
+  spacing_right: 0
+
+
+
+

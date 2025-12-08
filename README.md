@@ -1,5 +1,6 @@
 # Multi-View Stenosis Classification Leveraging Transformer-Based Multiple-Instance Learning
-![Main Figure](main_figure.png)
+<img src="main_figure.png" alt="Figure" width="50%"/>
+
 # Abstract
 Coronary artery stenosis is a leading cause of cardiovascular disease, diagnosed by analyzing the coronary arteries from multiple angiography views. Although numerous deep-learning models have been proposed for stenosis detection from a single angiography view, their performance heavily relies on expensive view-level annotations, which are often not readily available in hospital systems. Moreover, these models fail to capture the temporal dynamics and dependencies among multiple views, which are essential aspects 
 for clinical diagnosis. To address this, we propose SegmentMIL, a transformer-based multi-view multiple-instance learning framework for patient-level stenosis classification. Trained on a real-world clinical dataset, using patient-level supervision and without any view-level annotations, SegmentMIL jointly predicts the presence of stenosis and localizes the affected anatomical region, distinguishing between the right and left coronary arteries and their respective segments. SegmentMIL obtains high performance on internal and external evaluations and outperforms both view-level models and classical MIL baselines, underscoring its potential as a clinically viable and scalable solution for coronary stenosis diagnosis. 

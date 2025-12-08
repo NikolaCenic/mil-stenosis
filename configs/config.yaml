@@ -7,7 +7,7 @@ artery_based: # set dynamically based on approach
 segment_based: # set dynamically based on approach
 early_stop: True
 batch_size: 10
-epochs: 2 #100
+epochs: 100
 device: cuda:0
 augmentation: base
 seed: 0

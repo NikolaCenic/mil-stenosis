@@ -1,3 +1,4 @@
 *__pycache__/*
 setup.sh
-/home/nikolac/multi-view-stenosis-classification/stenosis-classification
+stenosis-classification/*
+outputs/*

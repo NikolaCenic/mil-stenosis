@@ -6,7 +6,6 @@ import torch
 import wandb
 import cv2
 from models import MaxMIL, AttnMIL, ClsMIL, SegmentMIL
-import matplotlib.pyplot as plt
 from torch.utils.data import DataLoader
 from image_datasets import SingleSampleDataset
 from mil_datasets import MILDataset

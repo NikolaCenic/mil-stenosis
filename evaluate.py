@@ -1,43 +1,30 @@
 import os
 import torch
-import torch.nn.functional as F
 from image_datasets import InternalViewLevel, CadicaViewLevel
 from mil_datasets import MILDataset, CADICAMILDataset
 from torch.cuda.amp import autocast
-from segment_attention_utils import (
-    overwrite_torch_mha,
-    multi_head_attention_forward,
-)
+import argparse
+from pathlib import Path
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader
-import wandb
 from utils import (
     get_segments_to_use,
     set_seed,
     compute_metrics,
-    wandb_log_data,
     load_model,
     load_config,
     YOLOWrap,
 )
-import pandas as pd
 import numpy as np
 from tqdm import tqdm
 import logging
-import warnings
-import json
-
-warnings.filterwarnings("ignore")
-import warnings
-
-warnings.filterwarnings("ignore")
 from enum import Enum
 
 logger = logging.getLogger(__name__)
 
 
 class EvaluationMode(Enum):
-    ViewLevel = "View Level"
+    ViewLevel = "ViewLevel"
     PatientLevel = "PatientLevel"
 
 
@@ -225,15 +212,15 @@ def evaluate(
     metrics_prefix = f"{dataset.upper()}_{evaluation_mode.value}"
     with torch.no_grad():
         test_logits, test_targets, test_samples_cnt = [], [], []
-        for batch_ind, (
+        for (
             images,
             targets,
             samples_cnt,
-            ids,
+            _,
             angulations,
-            stenosis_percentage,
+            _,
         ) in tqdm(
-            enumerate(test_loader),
+            test_loader,
             total=len(test_loader),
             desc=f"Testing model",
         ):
@@ -312,57 +299,43 @@ def evaluate(
     return test_metrics
 
 
-def evaluate_baseline():
-    baseline_dir = "/home/nikolac/stenosis-classification/stenosis_classification/bbox_baseline/frame-classification"
-    model = "10-16_18-45-31-lr0.001-mos1.0_train"
-    model_dir = os.path.join(baseline_dir, model)
-
-    evaluate(
-        model_dir,
-        dataset="gold_standard",
-        bootstrap=bootstrap,
-        evaluation_mode=EvaluationMode.ViewLevel,
-    )
-    return
-    evaluate_model(
-        model_dir,
-        dataset="gold_standard",
-        bootstrap=bootstrap,
-    )
-    evaluate_model(
-        model_dir,
-        dataset="test_cadica",
-        bootstrap=bootstrap,
-        evaluation_mode=EvaluationMode.ViewLevel,
-    )
-
-    evaluate_model(
-        model_dir,
-        dataset="test_cadica",
-        bootstrap=bootstrap,
-    )
-
-    evaluate_model(
-        model_dir,
-        dataset="gold_standard",
-        bootstrap=bootstrap,
-    )
-    evaluate_model(model_dir, dataset="test", bootstrap=bootstrap)
-    evaluate_model(model_dir, dataset="gold_standard", bootstrap=bootstrap)
-
-
 if __name__ == "__main__":
-    model_dir = "/home/nikolac/multi-view-stenosis-classification/stenosis-classification/12_04_18:16:56-airl"
-    # evaluate_baseline()
-    for dataset, level in [
-        # ("val", EvaluationMode.PatientLevel),
-        # ("test", EvaluationMode.PatientLevel),
-        # ("test", EvaluationMode.ViewLevel),
-        # ("test_cadica", EvaluationMode.PatientLevel),
-        ("test_cadica", EvaluationMode.ViewLevel),
-    ]:
+    parser = argparse.ArgumentParser()
 
-        metrics = evaluate(
-            model_dir, dataset=dataset, evaluation_mode=level, bootstrap=False
-        )
-        print(metrics)
+    parser.add_argument(
+        "--model-dir",
+        type=Path,
+        required=True,
+        help="Path to the model directory.",
+    )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default="test",
+        help='Dataset name: "test" or "test_cadica".',
+    )
+    parser.add_argument(
+        "--evaluation-level",
+        type=str,
+        choices=["ViewLevel", "PatientLevel"],
+        default="PatientLevel",
+        help="Evaluation mode.",
+    )
+    parser.add_argument(
+        "--bootstrap",
+        action="store_true",
+        help="Enable bootstrapping.",
+    )
+
+    args = parser.parse_args()
+
+    evaluation_mode = EvaluationMode[args.evaluation_level]
+
+    metrics = evaluate(
+        model_dir=args.model_dir,
+        dataset=args.dataset,
+        evaluation_mode=evaluation_mode,
+        bootstrap=args.bootstrap,
+    )
+
+    print(metrics)
